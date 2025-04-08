@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, CheckCircle, BarChart3, PieChart } from 'lucide-react';
+import { AlertCircle, CheckCircle, BarChart3, UtensilsCrossed, Dumbbell } from 'lucide-react';
 
 interface AssessmentData {
   riskScore: number;
@@ -204,6 +204,25 @@ const Results = () => {
               <Separator />
               
               <CardFooter className="flex flex-col p-6">
+                <div className="bg-pcos-50 border border-pcos-100 rounded-md p-4 mb-6 w-full">
+                  <div className="flex items-center mb-3">
+                    <div className="flex mr-3">
+                      <UtensilsCrossed className="h-5 w-5 text-pcos-600 mr-1" />
+                      <Dumbbell className="h-5 w-5 text-pcos-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold">Personalized Recommendations</h3>
+                  </div>
+                  <p className="text-sm mb-3">
+                    Get personalized diet and exercise recommendations based on your assessment results to help manage your symptoms.
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/recommendations')}
+                    className="w-full sm:w-auto"
+                  >
+                    View Personalized Plan
+                  </Button>
+                </div>
+                
                 <h3 className="text-lg font-semibold self-start mb-4">Recommended Next Steps</h3>
                 
                 <div className="space-y-4 w-full mb-6">
