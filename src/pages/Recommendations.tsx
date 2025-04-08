@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import DailyTracker from '@/components/DailyTracker';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -109,6 +110,10 @@ const Recommendations = () => {
               </TabsList>
               
               <TabsContent value="diet">
+                {/* Diet Tracker */}
+                <DailyTracker type="diet" />
+                
+                {/* Diet Recommendations */}
                 <Card>
                   <CardHeader className="text-center">
                     <CardTitle>{dietPlan.title}</CardTitle>
@@ -180,6 +185,10 @@ const Recommendations = () => {
               </TabsContent>
               
               <TabsContent value="exercise">
+                {/* Exercise Tracker */}
+                <DailyTracker type="exercise" />
+                
+                {/* Exercise Recommendations */}
                 <Card>
                   <CardHeader className="text-center">
                     <CardTitle>{exercisePlan.title}</CardTitle>
