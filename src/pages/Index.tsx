@@ -4,6 +4,7 @@ import Hero from '@/components/Hero';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ResourcesSection from '@/components/ResourcesSection';
+import DailyTracker from '@/components/DailyTracker';
 
 const Index = () => {
   return (
@@ -11,6 +12,22 @@ const Index = () => {
       <Navbar />
       <main className="flex-grow">
         <Hero />
+        
+        <section className="py-12 bg-white">
+          <div className="container px-4 sm:px-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold gradient-text mb-4">Daily Tracking</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Monitor your diet and exercise to help manage PCOS symptoms effectively.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <DailyTracker type="diet" />
+              <DailyTracker type="exercise" />
+            </div>
+          </div>
+        </section>
         
         <section className="py-16 bg-white">
           <div className="container px-4 sm:px-6">
