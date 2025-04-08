@@ -7,10 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, BarChart3, PieChart } from 'lucide-react';
 
 interface AssessmentData {
   riskScore: number;
+  riskPercentage: number;
+  confidenceScore: number;
+  keyFactors: string[];
+  riskLevel: string;
   symptomCount: number;
   personalInfo: {
     age: string;
@@ -21,14 +25,37 @@ interface AssessmentData {
   selectedSymptoms: Record<string, boolean>;
 }
 
-const getRiskLevel = (score: number): { level: string; color: string } => {
-  if (score >= 10) {
-    return { level: "High", color: "bg-red-500" };
-  } else if (score >= 6) {
-    return { level: "Moderate", color: "bg-amber-500" };
-  } else {
-    return { level: "Low", color: "bg-green-500" };
+const getRiskLevel = (level: string): { level: string; color: string } => {
+  switch (level) {
+    case "High":
+      return { level: "High", color: "bg-red-500" };
+    case "Moderate":
+      return { level: "Moderate", color: "bg-amber-500" };
+    default:
+      return { level: "Low", color: "bg-green-500" };
   }
+};
+
+// Function to map symptom IDs to readable names
+const getSymptomName = (symptomId: string): string => {
+  const symptomMap: Record<string, string> = {
+    'irregular-periods': 'Irregular Periods',
+    'hair-growth': 'Excess Hair Growth',
+    'weight-gain': 'Unexplained Weight Gain',
+    'acne': 'Acne',
+    'hair-loss': 'Hair Loss or Thinning',
+    'skin-tags': 'Skin Tags',
+    'fatigue': 'Fatigue',
+    'mood-changes': 'Mood Changes',
+    'pelvic-pain': 'Pelvic Pain',
+    'headaches': 'Headaches',
+    'sleep-problems': 'Sleep Problems',
+    'infertility': 'Difficulty Getting Pregnant',
+    'family-history': 'Family History of PCOS',
+    'age-factor': 'Age Range (20-39)',
+  };
+  
+  return symptomMap[symptomId] || symptomId;
 };
 
 const Results = () => {
@@ -58,11 +85,8 @@ const Results = () => {
     );
   }
   
-  const { riskScore, symptomCount } = assessment;
-  const risk = getRiskLevel(riskScore);
-  
-  // Calculate percentage for risk visualization
-  const riskPercentage = Math.min(100, (riskScore / 15) * 100);
+  const { riskScore, riskPercentage, confidenceScore, keyFactors, riskLevel } = assessment;
+  const risk = getRiskLevel(riskLevel);
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -74,26 +98,31 @@ const Results = () => {
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Your PCOS Assessment Results</CardTitle>
                 <CardDescription>
-                  Based on the information you provided, we've generated the following assessment
+                  Based on the information you provided, our model has generated the following assessment
                 </CardDescription>
               </CardHeader>
               
               <CardContent>
                 <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-2">PCOS Risk Assessment</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold">PCOS Risk Assessment</h3>
+                    <div className="bg-secondary/60 px-3 py-1 rounded-full text-xs">
+                      Model Confidence: {confidenceScore}%
+                    </div>
+                  </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-sm font-medium">Risk Level: {risk.level}</span>
-                      <span className="text-sm">{riskScore} points</span>
+                      <span className="text-sm">{riskPercentage}%</span>
                     </div>
                     
                     <Progress value={riskPercentage} className="h-3" />
                     
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Low</span>
-                      <span>Moderate</span>
-                      <span>High</span>
+                      <span>Low Risk (0-39%)</span>
+                      <span>Moderate Risk (40-69%)</span>
+                      <span>High Risk (70-100%)</span>
                     </div>
                   </div>
                 </div>
@@ -104,8 +133,8 @@ const Results = () => {
                     <div>
                       <h4 className="font-medium text-red-800">High Risk Indicators</h4>
                       <p className="text-red-700 text-sm mt-1">
-                        Your responses suggest a higher likelihood of PCOS. It's recommended that you consult with a healthcare 
-                        provider who can provide proper evaluation and diagnosis.
+                        Our model indicates a higher likelihood of PCOS based on your symptoms and risk factors. 
+                        It's recommended that you consult with a healthcare provider who can provide proper evaluation and diagnosis.
                       </p>
                     </div>
                   </div>
@@ -117,7 +146,7 @@ const Results = () => {
                     <div>
                       <h4 className="font-medium text-amber-800">Moderate Risk Indicators</h4>
                       <p className="text-amber-700 text-sm mt-1">
-                        Your responses indicate some symptoms consistent with PCOS. Consider discussing these symptoms 
+                        The model analysis shows some symptoms consistent with PCOS. Consider discussing these symptoms 
                         with your healthcare provider at your next visit.
                       </p>
                     </div>
@@ -130,7 +159,7 @@ const Results = () => {
                     <div>
                       <h4 className="font-medium text-green-800">Low Risk Indicators</h4>
                       <p className="text-green-700 text-sm mt-1">
-                        Your responses suggest lower likelihood of PCOS. However, if you have specific health concerns, 
+                        Based on our model analysis, your symptoms suggest lower likelihood of PCOS. However, if you have specific health concerns, 
                         it's always appropriate to discuss them with your healthcare provider.
                       </p>
                     </div>
@@ -138,50 +167,33 @@ const Results = () => {
                 )}
                 
                 <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-4">Key Factors in Your Assessment</h3>
+                  <div className="flex items-center mb-4">
+                    <BarChart3 className="mr-2 text-pcos-600" />
+                    <h3 className="text-lg font-semibold">Key Factors in Your Assessment</h3>
+                  </div>
                   
                   <div className="space-y-4">
-                    {assessment.personalInfo.hasRegularPeriods === "no" && (
-                      <div className="p-3 bg-secondary rounded-md">
-                        <p className="font-medium">Irregular Periods</p>
+                    {keyFactors.map((factor, index) => (
+                      <div key={index} className="p-3 bg-secondary rounded-md">
+                        <p className="font-medium">{getSymptomName(factor)}</p>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Irregular menstrual cycles are one of the primary indicators of PCOS.
+                          {factor === 'irregular-periods' && 'Irregular menstrual cycles are one of the primary indicators of PCOS.'}
+                          {factor === 'family-history' && 'Having family members with PCOS increases your risk of developing the condition.'}
+                          {factor === 'hair-growth' && 'Excess hair growth on the face or body (hirsutism) is often linked to elevated androgen levels in PCOS.'}
+                          {factor === 'weight-gain' && 'Weight gain, particularly around the abdomen, is common in women with PCOS due to insulin resistance.'}
+                          {factor === 'acne' && 'Persistent acne can be related to hormonal imbalances associated with PCOS.'}
+                          {factor === 'hair-loss' && 'Hair thinning or loss on the scalp can be a sign of elevated androgens in PCOS.'}
+                          {factor === 'infertility' && 'Difficulty conceiving is a common concern for women with PCOS due to irregular ovulation.'}
+                          {factor === 'age-factor' && 'PCOS is most commonly diagnosed during reproductive years, especially in the 20s and 30s.'}
                         </p>
                       </div>
-                    )}
+                    ))}
                     
-                    {assessment.personalInfo.familyHistory === "yes" && (
-                      <div className="p-3 bg-secondary rounded-md">
-                        <p className="font-medium">Family History</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Having family members with PCOS increases your risk of developing the condition.
-                        </p>
-                      </div>
-                    )}
-                    
-                    {assessment.selectedSymptoms["hair-growth"] && (
-                      <div className="p-3 bg-secondary rounded-md">
-                        <p className="font-medium">Excess Hair Growth</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Excess hair growth on the face or body (hirsutism) is often linked to elevated androgen levels in PCOS.
-                        </p>
-                      </div>
-                    )}
-                    
-                    {assessment.selectedSymptoms["weight-gain"] && (
-                      <div className="p-3 bg-secondary rounded-md">
-                        <p className="font-medium">Unexplained Weight Gain</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Weight gain, particularly around the abdomen, is common in women with PCOS due to insulin resistance.
-                        </p>
-                      </div>
-                    )}
-                    
-                    {symptomCount >= 3 && (
+                    {assessment.symptomCount >= 3 && !keyFactors.includes('multiple-symptoms') && (
                       <div className="p-3 bg-secondary rounded-md">
                         <p className="font-medium">Multiple Symptoms</p>
                         <p className="text-sm text-muted-foreground mt-1">
-                          You've reported {symptomCount} symptoms that may be associated with PCOS. Multiple symptoms increase the likelihood of the condition.
+                          You've reported {assessment.symptomCount} symptoms that may be associated with PCOS. Multiple symptoms increase the likelihood of the condition.
                         </p>
                       </div>
                     )}
@@ -245,8 +257,8 @@ const Results = () => {
             
             <div className="text-center text-sm text-muted-foreground">
               <p>
-                Disclaimer: This assessment is not a diagnostic tool. The results are for informational purposes only and 
-                should not replace professional medical advice, diagnosis, or treatment.
+                Disclaimer: This assessment is based on a simulated model and is for informational purposes only. 
+                It should not replace professional medical advice, diagnosis, or treatment.
               </p>
             </div>
           </div>

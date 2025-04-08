@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +9,8 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
 import SymptomCard from './SymptomCard';
 import ProgressBar from './ProgressBar';
+import { predictPCOSRisk } from '@/utils/pcosModel';
 
-// Define the symptom data
 const commonSymptoms = [
   { 
     id: 'irregular-periods', 
@@ -90,7 +89,6 @@ const additionalSymptoms = [
   }
 ];
 
-// Define the assessment steps
 type Step = 'personal' | 'common' | 'additional';
 
 const AssessmentForm = () => {
@@ -121,7 +119,6 @@ const AssessmentForm = () => {
   
   const handleNext = () => {
     if (currentStep === 'personal') {
-      // Validate personal info
       if (!personalInfo.age || !personalInfo.hasRegularPeriods) {
         toast.error("Please fill all required fields");
         return;
@@ -129,11 +126,27 @@ const AssessmentForm = () => {
       
       setCurrentStep('common');
     } else if (currentStep === 'common') {
-      // Move to additional symptoms
       setCurrentStep('additional');
     } else {
-      // Calculate result and navigate
-      calculateAndSubmit();
+      const modelInput = {
+        age: personalInfo.age,
+        hasRegularPeriods: personalInfo.hasRegularPeriods,
+        familyHistory: personalInfo.familyHistory,
+        selectedSymptoms
+      };
+      
+      const prediction = predictPCOSRisk(modelInput);
+      
+      const symptomCount = Object.values(selectedSymptoms).filter(Boolean).length;
+      
+      sessionStorage.setItem('pcosAssessment', JSON.stringify({
+        ...prediction,
+        symptomCount,
+        personalInfo,
+        selectedSymptoms
+      }));
+      
+      navigate('/results');
     }
   };
   
@@ -145,48 +158,6 @@ const AssessmentForm = () => {
     }
   };
   
-  const calculateAndSubmit = () => {
-    // Create results object
-    const results = {
-      personalInfo,
-      symptoms: selectedSymptoms
-    };
-    
-    // Calculate risk score
-    let riskScore = 0;
-    let symptomCount = 0;
-    
-    // Add points for family history
-    if (personalInfo.familyHistory === 'yes') {
-      riskScore += 2;
-    }
-    
-    // Add points for irregular periods
-    if (personalInfo.hasRegularPeriods === 'no') {
-      riskScore += 3;
-    }
-    
-    // Add points for each selected symptom based on weight
-    [...commonSymptoms, ...additionalSymptoms].forEach(symptom => {
-      if (selectedSymptoms[symptom.id]) {
-        riskScore += symptom.weight;
-        symptomCount++;
-      }
-    });
-    
-    // Store results in session storage
-    sessionStorage.setItem('pcosAssessment', JSON.stringify({
-      riskScore,
-      symptomCount,
-      personalInfo,
-      selectedSymptoms
-    }));
-    
-    // Navigate to results page
-    navigate('/results');
-  };
-  
-  // Calculate current step number for progress bar
   let stepNumber = 1;
   if (currentStep === 'common') stepNumber = 2;
   if (currentStep === 'additional') stepNumber = 3;
