@@ -34,6 +34,16 @@ const Footer = () => {
                   PCOS Information
                 </Link>
               </li>
+              <li>
+                <Link to="/appointments" className="text-foreground/80 hover:text-pcos-500 transition-colors">
+                  Doctor Appointments
+                </Link>
+              </li>
+              <li>
+                <Link to="/expert-qa" className="text-foreground/80 hover:text-pcos-500 transition-colors">
+                  Expert Q&A
+                </Link>
+              </li>
             </ul>
           </div>
           

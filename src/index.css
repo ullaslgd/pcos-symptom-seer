@@ -91,7 +91,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans transition-colors duration-200;
   }
 }
 
@@ -100,3 +100,4 @@
     @apply bg-gradient-to-r from-pcos-500 to-teal-500 bg-clip-text text-transparent;
   }
 }
+

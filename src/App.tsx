@@ -10,6 +10,8 @@ import Information from "./pages/Information";
 import Results from "./pages/Results";
 import Recommendations from "./pages/Recommendations";
 import NotFound from "./pages/NotFound";
+import Appointments from "./pages/Appointments";
+import ExpertQA from "./pages/ExpertQA";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => (
           <Route path="/information" element={<Information />} />
           <Route path="/results" element={<Results />} />
           <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/appointments" element={<Appointments />} />
+          <Route path="/expert-qa" element={<ExpertQA />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
