@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, Info, Home, Calendar, MessageSquareQuestion } from "lucide-react";
+import { Activity, Info, Home, Calendar, MessageSquare } from "lucide-react";
 import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
@@ -62,7 +62,7 @@ const Navbar = () => {
             <span className="text-xs">Appts</span>
           </Link>
           <Link to="/expert-qa" className="flex flex-1 flex-col items-center justify-center py-2">
-            <MessageSquareQuestion className="h-5 w-5" />
+            <MessageSquare className="h-5 w-5" />
             <span className="text-xs">Q&A</span>
           </Link>
         </div>
