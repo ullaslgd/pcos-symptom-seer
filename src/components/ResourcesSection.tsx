@@ -9,12 +9,18 @@ interface ResourceCardProps {
   description: string;
   url: string;
   buttonText: string;
+  imageUrl: string;
 }
 
-const ResourceCard = ({ title, description, url, buttonText }: ResourceCardProps) => (
-  <Card>
+const ResourceCard = ({ title, description, url, buttonText, imageUrl }: ResourceCardProps) => (
+  <Card className="hover:shadow-lg transition-shadow duration-300">
     <CardHeader>
-      <CardTitle className="text-lg">{title}</CardTitle>
+      <img 
+        src={imageUrl} 
+        alt={title} 
+        className="w-full h-48 object-cover rounded-t-lg"
+      />
+      <CardTitle className="text-lg mt-2">{title}</CardTitle>
       <CardDescription>{description}</CardDescription>
     </CardHeader>
     <CardFooter>
@@ -32,25 +38,29 @@ const ResourcesSection = () => {
       title: "PCOS Awareness Association",
       description: "Non-profit organization dedicated to PCOS awareness, support, and education.",
       url: "https://www.pcosaa.org/",
-      buttonText: "Visit Website"
+      buttonText: "Visit Website",
+      imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
     },
     {
       title: "Mayo Clinic - PCOS Guide",
       description: "Comprehensive medical information about PCOS from a trusted source.",
       url: "https://www.mayoclinic.org/diseases-conditions/pcos/symptoms-causes/syc-20353439",
-      buttonText: "Learn More"
+      buttonText: "Learn More",
+      imageUrl: "https://images.unsplash.com/photo-1582562124811-c09040d0a901"
     },
     {
       title: "PCOS Challenge",
       description: "The National Polycystic Ovary Syndrome Association provides support and resources.",
       url: "https://pcoschallenge.org/",
-      buttonText: "Visit Website"
+      buttonText: "Visit Website",
+      imageUrl: "https://images.unsplash.com/photo-1721322800607-8c38375eef04"
     },
     {
       title: "Office on Women's Health",
       description: "US Department of Health & Human Services resource on PCOS.",
       url: "https://www.womenshealth.gov/a-z-topics/polycystic-ovary-syndrome",
-      buttonText: "View Resources"
+      buttonText: "View Resources",
+      imageUrl: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
     }
   ];
 
@@ -72,6 +82,7 @@ const ResourcesSection = () => {
               description={resource.description}
               url={resource.url}
               buttonText={resource.buttonText}
+              imageUrl={resource.imageUrl}
             />
           ))}
         </div>

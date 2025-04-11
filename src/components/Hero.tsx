@@ -51,6 +51,11 @@ const Hero = () => {
           <div className="relative animate-fadeIn">
             <div className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-pcos-300 to-teal-300 opacity-30 blur-xl"></div>
             <div className="relative bg-white rounded-lg shadow-md p-6 sm:p-8 border border-pcos-200/50">
+              <img 
+                src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9" 
+                alt="PCOS Health Awareness" 
+                className="w-full h-64 object-cover rounded-lg mb-4 shadow-md"
+              />
               <h3 className="font-semibold text-lg mb-4">Common Signs of PCOS</h3>
               
               <ul className="space-y-3">
