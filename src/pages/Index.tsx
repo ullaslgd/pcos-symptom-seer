@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ResourcesSection from '@/components/ResourcesSection';
 import DailyTracker from '@/components/DailyTracker';
+import ReviewSection from '@/components/ReviewSection';
 
 const Index = () => {
   return (
@@ -28,6 +29,8 @@ const Index = () => {
             </div>
           </div>
         </section>
+        
+        <ReviewSection />
         
         <section className="py-16 bg-white">
           <div className="container px-4 sm:px-6">
