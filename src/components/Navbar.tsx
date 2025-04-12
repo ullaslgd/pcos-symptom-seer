@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, Info, Home, Calendar, MessageSquare } from "lucide-react";
+import { Activity, Info, Home, Calendar, MessageSquare, LayoutDashboard } from "lucide-react";
 
 const Navbar = () => {
   return (
@@ -16,6 +16,9 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-6">
           <Link to="/" className="text-foreground/80 hover:text-foreground transition-colors">
             Home
+          </Link>
+          <Link to="/dashboard" className="text-foreground/80 hover:text-foreground transition-colors">
+            Dashboard
           </Link>
           <Link to="/assessment" className="text-foreground/80 hover:text-foreground transition-colors">
             Assessment
@@ -50,6 +53,10 @@ const Navbar = () => {
           <Link to="/" className="flex flex-1 flex-col items-center justify-center py-2">
             <Home className="h-5 w-5" />
             <span className="text-xs">Home</span>
+          </Link>
+          <Link to="/dashboard" className="flex flex-1 flex-col items-center justify-center py-2">
+            <LayoutDashboard className="h-5 w-5" />
+            <span className="text-xs">Dashboard</span>
           </Link>
           <Link to="/assessment" className="flex flex-1 flex-col items-center justify-center py-2">
             <Activity className="h-5 w-5" />

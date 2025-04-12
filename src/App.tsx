@@ -12,6 +12,7 @@ import Recommendations from "./pages/Recommendations";
 import NotFound from "./pages/NotFound";
 import Appointments from "./pages/Appointments";
 import ExpertQA from "./pages/ExpertQA";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/expert-qa" element={<ExpertQA />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
