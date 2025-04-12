@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Activity, Info, Home, Calendar, MessageSquare, LayoutDashboard } from "lucide-react";
+import { Activity, Info, Home, Calendar, MessageSquare, LayoutDashboard, BookOpen } from "lucide-react";
 
 const Navbar = () => {
   return (
@@ -26,6 +26,9 @@ const Navbar = () => {
           <Link to="/information" className="text-foreground/80 hover:text-foreground transition-colors">
             Information
           </Link>
+          <Link to="/education" className="text-foreground/80 hover:text-foreground transition-colors">
+            Education Hub
+          </Link>
           <Link to="/appointments" className="text-foreground/80 hover:text-foreground transition-colors">
             Appointments
           </Link>
@@ -36,8 +39,8 @@ const Navbar = () => {
         
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" className="hidden sm:flex">
-            <Link to="/information">
-              <Info className="mr-2 h-4 w-4" />
+            <Link to="/education">
+              <BookOpen className="mr-2 h-4 w-4" />
               Learn About PCOS
             </Link>
           </Button>
@@ -62,9 +65,9 @@ const Navbar = () => {
             <Activity className="h-5 w-5" />
             <span className="text-xs">Assessment</span>
           </Link>
-          <Link to="/appointments" className="flex flex-1 flex-col items-center justify-center py-2">
-            <Calendar className="h-5 w-5" />
-            <span className="text-xs">Appts</span>
+          <Link to="/education" className="flex flex-1 flex-col items-center justify-center py-2">
+            <BookOpen className="h-5 w-5" />
+            <span className="text-xs">Learn</span>
           </Link>
           <Link to="/expert-qa" className="flex flex-1 flex-col items-center justify-center py-2">
             <MessageSquare className="h-5 w-5" />
