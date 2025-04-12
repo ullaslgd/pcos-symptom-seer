@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import ResourcesSection from '@/components/ResourcesSection';
 import DailyTracker from '@/components/DailyTracker';
 import ReviewSection from '@/components/ReviewSection';
+import EducationPreview from '@/components/EducationPreview';
 
 const Index = () => {
   return (
@@ -29,6 +30,8 @@ const Index = () => {
             </div>
           </div>
         </section>
+        
+        <EducationPreview />
         
         <ReviewSection />
         
@@ -101,3 +104,4 @@ const Index = () => {
 };
 
 export default Index;
+
