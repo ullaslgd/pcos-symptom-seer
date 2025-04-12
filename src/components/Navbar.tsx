@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Activity, Info, Home, Calendar, MessageSquare } from "lucide-react";
-import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   return (
@@ -33,7 +32,6 @@ const Navbar = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <ThemeToggle />
           <Button asChild variant="outline" className="hidden sm:flex">
             <Link to="/information">
               <Info className="mr-2 h-4 w-4" />
