@@ -31,11 +31,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get session on initial load
     const getInitialSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        setSession(session);
-        setUser(session?.user ?? null);
+        console.log('Getting initial session...');
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log('Session data:', data);
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
       } catch (error) {
-        console.error('Error getting initial session:', error);
+        console.error('Error in getInitialSession:', error);
       } finally {
         setIsLoading(false);
       }
@@ -45,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -61,17 +71,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     try {
+      console.log('Signing up with:', email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
+      console.log('Sign up result:', error ? 'Error' : 'Success', data.user?.email);
       return { 
         error, 
         session: data.session, 
         user: data.user 
       };
     } catch (error) {
+      console.error('Error in signUp:', error);
       return { 
         error: error as Error, 
         session: null, 
@@ -82,17 +95,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Signing in with:', email);
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      console.log('Sign in result:', error ? 'Error' : 'Success', data.user?.email);
       return { error };
     } catch (error) {
+      console.error('Error in signIn:', error);
       return { error: error as Error };
     }
   };
 
   const signOut = async () => {
+    console.log('Signing out');
     await supabase.auth.signOut();
   };
 
