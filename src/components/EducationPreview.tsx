@@ -4,8 +4,11 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { BookOpen, FileText, Video } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
 
 const EducationPreview = () => {
+  const { user } = useAuth();
+  
   const featuredContent = [
     {
       title: "Understanding PCOS Symptoms",
@@ -38,6 +41,11 @@ const EducationPreview = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover expert insights, articles, and guides about PCOS management and treatment options.
           </p>
+          {!user && (
+            <p className="mt-4 text-sm text-pcos-700">
+              <Link to="/signup" className="underline font-medium">Create an account</Link> to unlock all educational resources
+            </p>
+          )}
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
