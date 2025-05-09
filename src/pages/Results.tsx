@@ -1,13 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, CheckCircle, BarChart3, UtensilsCrossed, Dumbbell } from 'lucide-react';
+import { AlertCircle, CheckCircle, BarChart3, UtensilsCrossed, Dumbbell, ArrowDownToLine, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from "sonner";
 
 interface AssessmentData {
   riskScore: number;
@@ -60,7 +63,10 @@ const getSymptomName = (symptomId: string): string => {
 
 const Results = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [assessment, setAssessment] = useState<AssessmentData | null>(null);
+  const [savedAssessments, setSavedAssessments] = useState<any[]>([]);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
   
   useEffect(() => {
     const savedAssessment = sessionStorage.getItem('pcosAssessment');
@@ -71,7 +77,96 @@ const Results = () => {
     }
     
     setAssessment(JSON.parse(savedAssessment));
-  }, [navigate]);
+    
+    // Fetch saved assessments if user is logged in
+    if (user) {
+      fetchSavedAssessments();
+    }
+  }, [navigate, user]);
+
+  const fetchSavedAssessments = async () => {
+    if (!user) return;
+    
+    setIsLoadingSaved(true);
+    try {
+      const { data, error } = await supabase
+        .from('pcos_assessments')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) {
+        console.error('Error fetching saved assessments:', error);
+        toast.error('Failed to fetch your saved assessments.');
+      } else if (data) {
+        setSavedAssessments(data);
+      }
+    } catch (error) {
+      console.error('Error fetching saved assessments:', error);
+    } finally {
+      setIsLoadingSaved(false);
+    }
+  };
+  
+  const handleSaveAssessment = async () => {
+    if (!user || !assessment) {
+      toast.error('You must be logged in to save assessments.');
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('pcos_assessments')
+        .insert({
+          user_id: user.id,
+          risk_score: assessment.riskScore,
+          risk_percentage: assessment.riskPercentage,
+          confidence_score: assessment.confidenceScore,
+          risk_level: assessment.riskLevel,
+          key_factors: assessment.keyFactors,
+          symptom_count: assessment.symptomCount,
+          personal_info: assessment.personalInfo,
+          selected_symptoms: assessment.selectedSymptoms
+        });
+      
+      if (error) {
+        console.error('Error saving assessment:', error);
+        toast.error('Failed to save your assessment.');
+      } else {
+        toast.success('Assessment saved successfully!');
+        fetchSavedAssessments();
+      }
+    } catch (error) {
+      console.error('Error saving assessment:', error);
+      toast.error('An unexpected error occurred.');
+    }
+  };
+  
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy');
+    } catch (e) {
+      return 'Unknown date';
+    }
+  };
+  
+  const loadSavedAssessment = (savedAssessment: any) => {
+    const assessmentData = {
+      riskScore: savedAssessment.risk_score,
+      riskPercentage: savedAssessment.risk_percentage,
+      confidenceScore: savedAssessment.confidence_score,
+      riskLevel: savedAssessment.risk_level,
+      keyFactors: savedAssessment.key_factors,
+      symptomCount: savedAssessment.symptom_count,
+      personalInfo: savedAssessment.personal_info,
+      selectedSymptoms: savedAssessment.selected_symptoms
+    };
+    
+    setAssessment(assessmentData as AssessmentData);
+    toast.success('Loaded saved assessment');
+    
+    // Save to session storage for consistency
+    sessionStorage.setItem('pcosAssessment', JSON.stringify(assessmentData));
+  };
   
   if (!assessment) {
     return (
@@ -94,6 +189,56 @@ const Results = () => {
       <main className="flex-grow py-10 bg-gradient-to-b from-pcos-50 to-white">
         <div className="container px-4 sm:px-6">
           <div className="max-w-3xl mx-auto">
+            
+            {user && savedAssessments.length > 0 && (
+              <Card className="mb-6">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Your Saved Assessments</CardTitle>
+                  <CardDescription>View your assessment history</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {isLoadingSaved ? (
+                      <p>Loading saved assessments...</p>
+                    ) : (
+                      savedAssessments.slice(0, 5).map((saved) => (
+                        <div 
+                          key={saved.id}
+                          className="flex justify-between items-center p-3 bg-secondary/40 rounded-md cursor-pointer hover:bg-secondary/60 transition-colors"
+                          onClick={() => loadSavedAssessment(saved)}
+                        >
+                          <div className="flex items-center">
+                            <CalendarIcon className="h-4 w-4 mr-2 text-pcos-600" />
+                            <span>{formatDate(saved.created_at)}</span>
+                          </div>
+                          <div>
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              saved.risk_level === 'High' ? 'bg-red-100 text-red-800' : 
+                              saved.risk_level === 'Moderate' ? 'bg-amber-100 text-amber-800' : 
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {saved.risk_level} Risk
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    {savedAssessments.length > 5 && (
+                      <div className="text-center mt-2">
+                        <Button 
+                          variant="link" 
+                          onClick={() => navigate('/dashboard')}
+                          className="text-pcos-600"
+                        >
+                          View all assessments in dashboard
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             <Card className="mb-6 animate-fadeIn">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Your PCOS Assessment Results</CardTitle>
@@ -204,6 +349,19 @@ const Results = () => {
               <Separator />
               
               <CardFooter className="flex flex-col p-6">
+                {user && (
+                  <div className="w-full mb-6">
+                    <Button 
+                      onClick={handleSaveAssessment}
+                      variant="outline"
+                      className="flex items-center gap-2 w-full sm:w-auto mb-4"
+                    >
+                      <ArrowDownToLine className="h-4 w-4" />
+                      Save This Assessment
+                    </Button>
+                  </div>
+                )}
+                
                 <div className="bg-pcos-50 border border-pcos-100 rounded-md p-4 mb-6 w-full">
                   <div className="flex items-center mb-3">
                     <div className="flex mr-3">

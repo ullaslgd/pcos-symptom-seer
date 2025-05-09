@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import SymptomCard from './SymptomCard';
 import ProgressBar from './ProgressBar';
 import { predictPCOSRisk } from '@/utils/pcosModel';
@@ -93,6 +96,7 @@ type Step = 'personal' | 'common' | 'additional';
 
 const AssessmentForm = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>('personal');
   const [personalInfo, setPersonalInfo] = useState({
     age: '',
@@ -102,6 +106,7 @@ const AssessmentForm = () => {
   });
   
   const [selectedSymptoms, setSelectedSymptoms] = useState<Record<string, boolean>>({});
+  const [isSaving, setIsSaving] = useState(false);
   
   const handlePersonalInfoChange = (field: string, value: string) => {
     setPersonalInfo({
@@ -117,7 +122,41 @@ const AssessmentForm = () => {
     });
   };
   
-  const handleNext = () => {
+  const saveAssessmentToSupabase = async (assessmentData: any) => {
+    if (!user) return;
+    
+    setIsSaving(true);
+    
+    try {
+      const { error } = await supabase
+        .from('pcos_assessments')
+        .insert({
+          user_id: user.id,
+          risk_score: assessmentData.riskScore,
+          risk_percentage: assessmentData.riskPercentage,
+          confidence_score: assessmentData.confidenceScore,
+          risk_level: assessmentData.riskLevel,
+          key_factors: assessmentData.keyFactors,
+          symptom_count: assessmentData.symptomCount,
+          personal_info: assessmentData.personalInfo,
+          selected_symptoms: assessmentData.selectedSymptoms
+        });
+      
+      if (error) {
+        console.error('Error saving assessment:', error);
+        toast.error('Failed to save your assessment results.');
+      } else {
+        toast.success('Assessment saved successfully!');
+      }
+    } catch (error) {
+      console.error('Error saving assessment:', error);
+      toast.error('An unexpected error occurred.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleNext = async () => {
     if (currentStep === 'personal') {
       if (!personalInfo.age || !personalInfo.hasRegularPeriods) {
         toast.error("Please fill all required fields");
@@ -139,12 +178,20 @@ const AssessmentForm = () => {
       
       const symptomCount = Object.values(selectedSymptoms).filter(Boolean).length;
       
-      sessionStorage.setItem('pcosAssessment', JSON.stringify({
+      const assessmentData = {
         ...prediction,
         symptomCount,
         personalInfo,
         selectedSymptoms
-      }));
+      };
+      
+      // Save to session storage
+      sessionStorage.setItem('pcosAssessment', JSON.stringify(assessmentData));
+      
+      // If user is logged in, also save to Supabase
+      if (user) {
+        await saveAssessmentToSupabase(assessmentData);
+      }
       
       navigate('/results');
     }
@@ -291,8 +338,8 @@ const AssessmentForm = () => {
             Back
           </Button>
           
-          <Button onClick={handleNext}>
-            {currentStep === 'additional' ? 'Submit' : 'Next'}
+          <Button onClick={handleNext} disabled={isSaving}>
+            {currentStep === 'additional' ? (isSaving ? 'Saving...' : 'Submit') : 'Next'}
           </Button>
         </CardFooter>
       </Card>

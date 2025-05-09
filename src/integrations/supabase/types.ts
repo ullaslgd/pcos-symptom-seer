@@ -9,7 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      pcos_assessments: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          id: string
+          key_factors: string[]
+          personal_info: Json
+          risk_level: string
+          risk_percentage: number
+          risk_score: number
+          selected_symptoms: Json
+          symptom_count: number
+          user_id: string | null
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string
+          id?: string
+          key_factors: string[]
+          personal_info: Json
+          risk_level: string
+          risk_percentage: number
+          risk_score: number
+          selected_symptoms: Json
+          symptom_count: number
+          user_id?: string | null
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          key_factors?: string[]
+          personal_info?: Json
+          risk_level?: string
+          risk_percentage?: number
+          risk_score?: number
+          selected_symptoms?: Json
+          symptom_count?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
